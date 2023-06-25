@@ -98,19 +98,23 @@ ul.task-list li input[type="checkbox"] {
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/02_data_acquisition.html" rel="" target="">
- <span class="dropdown-text">02 Supervise ML - Regression 2</span></a>
+ <span class="dropdown-text">02 Supervised ML - Regression (II)</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/03_data_wrangling.html" rel="" target="">
- <span class="dropdown-text">03 Data Wrangling</span></a>
+ <span class="dropdown-text">03 Automated Machine Learning with H2O (I)</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/04_data_visualization.html" rel="" target="">
- <span class="dropdown-text">04 Data Visualization</span></a>
+ <span class="dropdown-text">04 Automated Machine Learning with H2O (II)</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../content/01_journal/05_test.html" rel="" target="">
- <span class="dropdown-text">05 test</span></a>
+ <span class="dropdown-text">05 Performance Measures</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/06_test.html" rel="" target="">
+ <span class="dropdown-text">06 Explaining Black-Box Models with LIME</span></a>
   </li>  
     </ul>
   </li>
@@ -432,19 +436,6 @@ predictions_tbl &lt;- predictions %&gt;% as_tibble()</code></pre>
 <h1 data-number="7"><span class="header-section-number">7</span> -07 Save the leader model-</h1>
 <pre><code>h2o.getModel("StackedEnsemble_AllModels_1_AutoML_2_20230621_163345") %&gt;% 
   h2o.saveModel(path = "AutoML 2/Models/")</code></pre>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>You can delete everything in here and start fresh.</p>
-</div>
-</div>
 
 
 </section>
