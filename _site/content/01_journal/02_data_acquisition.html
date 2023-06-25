@@ -201,7 +201,7 @@ model_sales_tbl %&gt;% mutate(category_2 = as_factor(category_2) %&gt;%
   scale_y_continuous(labels = scales::dollar_format(scale = 1e-6, suffix = "M", accuracy = 0.1)) +
   tidyquant::theme_tq() +
   labs(title = "Total Sales for Each Model",x = "Frame Material", y = "Revenue")</code></pre>
-<p>The resulting plot is depicted below. <a href="../../AutoML 2/model.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Bike Overview"><img src="../../AutoML 2/model.png" class="img-fluid" alt="Bike Overview"></a></p>
+<p>The resulting plot is depicted below. <a href="../../AutoML 2/model.png" class="lightbox" title="Bike Overview" data-gallery="quarto-lightbox-gallery-1"><img src="../../AutoML 2/model.png" class="img-fluid" alt="Bike Overview"></a></p>
 <pre><code>bike_features_tbl &lt;- readRDS("bike_features_tbl.rds")
 bike_features_tbl &lt;- bike_features_tbl %&gt;% 
   select(frame_material:gender, `Rear Derailleur`, `Shift Lever`) %&gt;% 
@@ -261,13 +261,13 @@ bike_fit %&gt;% pull_workflow_fit() %&gt;% tidy()</code></pre>
   bind_cols(test_tbl %&gt;% select(frame_material, category_2)) 
 bike_predict %&gt;% roc_curve(truth = frame_material, .pred_aluminium) %&gt;% 
   autoplot()</code></pre>
-<p>The resulting plot is shown below. <a href="../../AutoML 2/sensitivity.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Bike Overview"><img src="../../AutoML 2/sensitivity.png" class="img-fluid" alt="Bike Overview"></a></p>
+<p>The resulting plot is shown below. <a href="../../AutoML 2/sensitivity.png" class="lightbox" title="Bike Overview" data-gallery="quarto-lightbox-gallery-2"><img src="../../AutoML 2/sensitivity.png" class="img-fluid" alt="Bike Overview"></a></p>
 <pre><code>bike_predict %&gt;% 
   roc_curve(truth = frame_material, .pred_carbon) %&gt;% 
   autoplot()</code></pre>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="../../AutoML 2/sensitivity2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Bike Overview"><img src="../../AutoML 2/sensitivity2.png" class="img-fluid figure-img"></a></p>
+<p><a href="../../AutoML 2/sensitivity2.png" class="lightbox" title="Bike Overview" data-gallery="quarto-lightbox-gallery-3"><img src="../../AutoML 2/sensitivity2.png" class="img-fluid figure-img"></a></p>
 <figcaption class="figure-caption">Bike Overview</figcaption>
 </figure>
 </div>
@@ -282,7 +282,7 @@ model_01_linear_lm_simple %&gt;%
   predict(new_data = test_tbl) %&gt;%
   bind_cols(test_tbl %&gt;% select(price)) %&gt;%
   metrics(truth = price, estimate = .pred)</code></pre>
-<p>Plot the results, facet-wrapping using the frame_material as an argument. <a href="../../AutoML 2/unitprice.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Bike Overview"><img src="../../AutoML 2/unitprice.png" class="img-fluid" alt="Bike Overview"></a></p>
+<p>Plot the results, facet-wrapping using the frame_material as an argument. <a href="../../AutoML 2/unitprice.png" class="lightbox" title="Bike Overview" data-gallery="quarto-lightbox-gallery-4"><img src="../../AutoML 2/unitprice.png" class="img-fluid" alt="Bike Overview"></a></p>
 <pre><code>new_trail &lt;- tibble(
   model = "Exceed AL SL new",
   category_2 = "Trail",
@@ -330,7 +330,7 @@ predictions_new_trail_tbl</code></pre>
 g2</code></pre>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="../../AutoML 2/unitprice2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Bike Overview"><img src="../../AutoML 2/unitprice2.png" class="img-fluid figure-img"></a></p>
+<p><a href="../../AutoML 2/unitprice2.png" class="lightbox" title="Bike Overview" data-gallery="quarto-lightbox-gallery-5"><img src="../../AutoML 2/unitprice2.png" class="img-fluid figure-img"></a></p>
 <figcaption class="figure-caption">Bike Overview</figcaption>
 </figure>
 </div>
@@ -688,7 +688,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","descPosition":"bottom","loop":true,"openEffect":"zoom"});</script>
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom","loop":true,"openEffect":"zoom"});</script>
 
 
 
