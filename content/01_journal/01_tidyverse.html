@@ -233,7 +233,7 @@ ggplot(aes(centers, tot.withinss)) +
   labs(title = "Skree Plot",
        subtitle = "Measures the distance each of the stocks are from the closes K-Means center",
        caption = "Conclusion: Based on the Scree Plot, we select 5 clusters to segment the stocks.")</code></pre>
-<p>Depicted below is the according plot. <a href="../../Fundamentals of Machine Learning/skree.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Skree Plot"><img src="../../Fundamentals of Machine Learning/skree.png" class="img-fluid" alt="Skree Plot"></a> Based on the Scree Plot, we select 10 cluster to segment the stocks.</p>
+<p>Depicted below is the according plot. <a href="../../Fundamentals of Machine Learning/skree.png" class="lightbox" title="Skree Plot" data-gallery="quarto-lightbox-gallery-1"><img src="../../Fundamentals of Machine Learning/skree.png" class="img-fluid" alt="Skree Plot"></a> Based on the Scree Plot, we select 10 cluster to segment the stocks.</p>
 <p>Step 6: Apply UMAP</p>
 <pre><code>umap_results &lt;- stock_date_matrix_tbl %&gt;%
   select(-symbol) %&gt;%
@@ -251,7 +251,7 @@ ggplot(aes(V1,V2)) +
   # Formatting
   theme_tq() +
   labs(title = "UMAP Projection")</code></pre>
-<p>The according plot can be seen below. <a href="../../Fundamentals of Machine Learning/Umap Projection.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Skree Plot"><img src="../../Fundamentals of Machine Learning/Umap Projection.png" class="img-fluid" alt="Skree Plot"></a> Step 7: Combine K-Means and UMAP. Get the k_means_obj from the 10th center.Store as k_means_obj.</p>
+<p>The according plot can be seen below. <a href="../../Fundamentals of Machine Learning/Umap Projection.png" class="lightbox" title="Skree Plot" data-gallery="quarto-lightbox-gallery-2"><img src="../../Fundamentals of Machine Learning/Umap Projection.png" class="img-fluid" alt="Skree Plot"></a> Step 7: Combine K-Means and UMAP. Get the k_means_obj from the 10th center.Store as k_means_obj.</p>
 <pre><code>k_means_obj &lt;- k_means_mapped_tbl %&gt;%
   pull(k_means) %&gt;%
   pluck(10)</code></pre>
@@ -271,7 +271,7 @@ ggplot(aes(V1,V2)) +
   geom_label_repel(aes(label = label_text), size = 2, fill = "#282A36") +
   scale_color_manual(values=c("black", "violet", "green","red","orange","purple","pink","blue","brown","yellow"))
 </code></pre>
-<p>The resulting plot is depicted below. <a href="../../Fundamentals of Machine Learning/Rplot Cluster.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Skree Plot"><img src="../../Fundamentals of Machine Learning/Rplot Cluster.png" class="img-fluid" alt="Skree Plot"></a></p>
+<p>The resulting plot is depicted below. <a href="../../Fundamentals of Machine Learning/Rplot Cluster.png" class="lightbox" title="Skree Plot" data-gallery="quarto-lightbox-gallery-3"><img src="../../Fundamentals of Machine Learning/Rplot Cluster.png" class="img-fluid" alt="Skree Plot"></a></p>
 
 
 </section>
@@ -626,7 +626,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","loop":true});</script>
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","loop":true,"closeEffect":"zoom","selector":".lightbox","descPosition":"bottom"});</script>
 
 
 

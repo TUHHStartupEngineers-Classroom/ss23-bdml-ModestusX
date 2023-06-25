@@ -6,9 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Joschka Schwarz">
+<meta name="author" content="Moritz Henkel">
 
-<title>MyLabJournal - Data Visualization</title>
+<title>MyLabJournal - Automated Machine Learning with H20 (II)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -135,14 +135,26 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#libraries-" id="toc-libraries-" class="nav-link active" data-scroll-target="#libraries-"><span class="header-section-number">1</span> -01 Libraries-</a></li>
+  <li><a href="#load-the-training-test-dataset-" id="toc-load-the-training-test-dataset-" class="nav-link" data-scroll-target="#load-the-training-test-dataset-"><span class="header-section-number">2</span> -02 Load the training &amp; test dataset-</a></li>
+  <li><a href="#specify-the-response-and-predictor-variables-" id="toc-specify-the-response-and-predictor-variables-" class="nav-link" data-scroll-target="#specify-the-response-and-predictor-variables-"><span class="header-section-number">3</span> -03 Specify the response and predictor variables-</a></li>
+  <li><a href="#run-automl-specifying-the-stopping-criterion-" id="toc-run-automl-specifying-the-stopping-criterion-" class="nav-link" data-scroll-target="#run-automl-specifying-the-stopping-criterion-"><span class="header-section-number">4</span> -04 Run AutoML specifying the stopping criterion-</a></li>
+  <li><a href="#view-the-leaderboard-" id="toc-view-the-leaderboard-" class="nav-link" data-scroll-target="#view-the-leaderboard-"><span class="header-section-number">5</span> -05 View the leaderboard-</a></li>
+  <li><a href="#predicting-using-leader-model-" id="toc-predicting-using-leader-model-" class="nav-link" data-scroll-target="#predicting-using-leader-model-"><span class="header-section-number">6</span> -06 Predicting using Leader Model-</a></li>
+  <li><a href="#save-the-leader-model-" id="toc-save-the-leader-model-" class="nav-link" data-scroll-target="#save-the-leader-model-"><span class="header-section-number">7</span> -07 Save the leader model-</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Visualization</h1>
+<h1 class="title">Automated Machine Learning with H20 (II)</h1>
 </div>
 
 
@@ -152,7 +164,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Joschka Schwarz </p>
+             <p>Moritz Henkel </p>
           </div>
   </div>
     
@@ -163,6 +175,263 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
+<p><em>Challenge description:</em> Goal is to predict whether or not a product will be put on backorder status.Given a number of product metrics such as: current inventory, transit time, demand forecasts and prior sales. It’s a classic Binary Classification problem.</p>
+<section id="libraries-" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> -01 Libraries-</h1>
+<pre><code>library(h2o)
+library(tidyverse)
+library(readxl)
+library(rsample)
+library(recipes)
+library(tidymodels)</code></pre>
+</section>
+<section id="load-the-training-test-dataset-" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> -02 Load the training &amp; test dataset-</h1>
+<pre><code>#Import and clean Data
+product_backorders_tbl_raw &lt;- read_csv("AutoML 2/product_backorders.csv")
+product_backorders_tbl %&gt;% glimpse
+product_backorders_tbl %&gt;% class
+product_backorders_tbl &lt;- product_backorders_tbl_raw %&gt;%
+  replace(is.na(.), 0) %&gt;%
+  select(national_inv,forecast_3_month,forecast_6_month,forecast_9_month,sales_1_month,sales_3_month,sales_9_month,went_on_backorder,lead_time)
+
+#Split the Dataset---
+set.seed(seed = 1113)
+split_obj                       &lt;- rsample::initial_split(product_backorders_tbl, prop = 0.85)
+train_readable_tbl              &lt;- training(split_obj)
+test_readable_tbl               &lt;- testing(split_obj)
+
+train_readable_tbl %&gt;% glimpse
+
+#Add recipe
+recipe_obj &lt;- recipe(went_on_backorder ~., data = train_readable_tbl) %&gt;% 
+  step_zv(all_predictors()) %&gt;% 
+  step_dummy(all_nominal()) %&gt;% 
+  prep()
+
+train_tbl &lt;- bake(recipe_obj, new_data = train_readable_tbl)
+test_tbl  &lt;- bake(recipe_obj, new_data = test_readable_tbl)
+
+train_tbl %&gt;% glimpse</code></pre>
+</section>
+<section id="specify-the-response-and-predictor-variables-" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> -03 Specify the response and predictor variables-</h1>
+<pre><code>#Modeling
+h2o.init()
+
+#Split data into a training and a validation data frame
+#Setting the seed is just for reproducability
+split_h2o &lt;- h2o.splitFrame(as.h2o(train_tbl), ratios = c(0.85), seed = 1234)
+train_h2o &lt;- split_h2o[[1]]
+valid_h2o &lt;- split_h2o[[2]]
+test_h2o  &lt;- as.h2o(test_tbl)
+#Set the target and predictors
+y &lt;- "went_on_backorder_Yes"
+x &lt;- setdiff(names(train_h2o), y)</code></pre>
+<p>Console output:</p>
+<pre><code>H2O is not running yet, starting it now...
+
+Note:  In case of errors look at the following log files:
+    C:\Users\morit\AppData\Local\Temp\RtmpkldTbq\file365684f973e98/h2o_morit_started_from_r.out
+    C:\Users\morit\AppData\Local\Temp\RtmpkldTbq\file3656852a87f69/h2o_morit_started_from_r.err
+
+java version "1.8.0_371"
+Java(TM) SE Runtime Environment (build 1.8.0_371-b11)
+Java HotSpot(TM) 64-Bit Server VM (build 25.371-b11, mixed mode)
+
+Starting H2O JVM and connecting:  Connection successful!
+
+R is connected to the H2O cluster: 
+    H2O cluster uptime:         2 seconds 203 milliseconds 
+    H2O cluster timezone:       Europe/Berlin 
+    H2O data parsing timezone:  UTC 
+    H2O cluster version:        3.40.0.4 
+    H2O cluster version age:    1 month and 28 days 
+    H2O cluster name:           H2O_started_from_R_morit_yyy113 
+    H2O cluster total nodes:    1 
+    H2O cluster total memory:   3.52 GB 
+    H2O cluster total cores:    8 
+    H2O cluster allowed cores:  8 
+    H2O cluster healthy:        TRUE 
+    H2O Connection ip:          localhost 
+    H2O Connection port:        54321 
+    H2O Connection proxy:       NA 
+    H2O Internal Security:      FALSE 
+    R Version:                  R version 4.3.0 (2023-04-21 ucrt) </code></pre>
+</section>
+<section id="run-automl-specifying-the-stopping-criterion-" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> -04 Run AutoML specifying the stopping criterion-</h1>
+<pre><code>#Computation
+automl_models_h2o &lt;- h2o.automl(
+  x = x,
+  y = y,
+  training_frame    = train_h2o,
+  validation_frame  = valid_h2o,
+  leaderboard_frame = test_h2o,
+  max_runtime_secs  = 30,
+  nfolds            = 5 
+)</code></pre>
+</section>
+<section id="view-the-leaderboard-" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> -05 View the leaderboard-</h1>
+<pre><code>typeof(automl_models_h2o)
+
+slotNames(automl_models_h2o)
+
+automl_models_h2o@leaderboard
+
+automl_models_h2o@leader</code></pre>
+<p>Console output:</p>
+<pre><code>&gt; typeof(automl_models_h2o)
+[1] "S4"
+&gt; slotNames(automl_models_h2o)
+[1] "project_name"   "leader"        
+[3] "leaderboard"    "event_log"     
+[5] "modeling_steps" "training_info"
+&gt; automl_models_h2o@leaderboard
+                                                 model_id
+1    StackedEnsemble_AllModels_1_AutoML_1_20230625_134859
+2 StackedEnsemble_BestOfFamily_2_AutoML_1_20230625_134859
+3    StackedEnsemble_AllModels_3_AutoML_1_20230625_134859
+4    StackedEnsemble_AllModels_2_AutoML_1_20230625_134859
+5 StackedEnsemble_BestOfFamily_3_AutoML_1_20230625_134859
+6                          GBM_3_AutoML_1_20230625_134859
+       rmse        mse       mae     rmsle
+1 0.2374131 0.05636497 0.1185295 0.1667977
+2 0.2375384 0.05642451 0.1191784 0.1669414
+3 0.2377237 0.05651256 0.1194605 0.1669419
+4 0.2377319 0.05651644 0.1195676 0.1670420
+5 0.2379560 0.05662306 0.1202086 0.1671611
+6 0.2398715 0.05753832 0.1189256 0.1674136
+  mean_residual_deviance
+1             0.05636497
+2             0.05642451
+3             0.05651256
+4             0.05651644
+5             0.05662306
+6             0.05753832
+
+[22 rows x 6 columns] 
+
+&gt; automl_models_h2o@leader
+Model Details:
+==============
+
+H2ORegressionModel: stackedensemble
+Model ID:  StackedEnsemble_AllModels_1_AutoML_1_20230625_134859 
+Model Summary for Stacked Ensemble: 
+                                    key
+1                     Stacking strategy
+2  Number of base models (used / total)
+3      # GBM base models (used / total)
+4      # DRF base models (used / total)
+5      # GLM base models (used / total)
+6                 Metalearner algorithm
+7    Metalearner fold assignment scheme
+8                    Metalearner nfolds
+9               Metalearner fold_column
+10   Custom metalearner hyperparameters
+              value
+1  cross_validation
+2               4/6
+3               3/4
+4               1/1
+5               0/1
+6               GLM
+7            Random
+8                 5
+9                NA
+10             None
+
+
+H2ORegressionMetrics: stackedensemble
+** Reported on training data. **
+
+MSE:  0.03395538
+RMSE:  0.1842698
+MAE:  0.09065456
+RMSLE:  0.1300627
+Mean Residual Deviance :  0.03395538
+
+
+H2ORegressionMetrics: stackedensemble
+** Reported on validation data. **
+
+MSE:  0.05205382
+RMSE:  0.2281531
+MAE:  0.1140043
+RMSLE:  0.1596159
+Mean Residual Deviance :  0.05205382
+
+
+H2ORegressionMetrics: stackedensemble
+** Reported on cross-validation data. **
+** 5-fold cross-validation on training data (Metrics computed for combined holdout predictions) **
+
+MSE:  0.05568107
+RMSE:  0.2359684
+MAE:  0.1197783
+RMSLE:  0.1659957
+Mean Residual Deviance :  0.05568107
+
+
+Cross-Validation Metrics Summary: 
+                             mean        sd
+mae                      0.119585  0.004007
+mean_residual_deviance   0.055614  0.002676
+mse                      0.055614  0.002676
+null_deviance          288.787400 16.519962
+r2                       0.467606  0.015342
+residual_deviance      153.644550  9.274528
+rmse                     0.235770  0.005697
+rmsle                    0.165776  0.004137
+                       cv_1_valid cv_2_valid
+mae                      0.120877   0.116474
+mean_residual_deviance   0.057802   0.053377
+mse                      0.057802   0.053377
+null_deviance          289.558400 277.867070
+r2                       0.441448   0.476448
+residual_deviance      161.728620 145.452180
+rmse                     0.240419   0.231035
+rmsle                    0.169369   0.162210
+                       cv_3_valid cv_4_valid
+mae                      0.122926   0.114320
+mean_residual_deviance   0.056638   0.052183
+mse                      0.056638   0.052183
+null_deviance          303.084560 267.235630
+r2                       0.480238   0.467884
+residual_deviance      157.454960 142.040850
+rmse                     0.237988   0.228435
+rmsle                    0.167905   0.160456
+                       cv_5_valid
+mae                      0.123328
+mean_residual_deviance   0.058068
+mse                      0.058068
+null_deviance          306.191440
+r2                       0.472014
+residual_deviance      161.546140
+rmse                     0.240974
+rmsle                    0.168938
+</code></pre>
+</section>
+<section id="predicting-using-leader-model-" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> -06 Predicting using Leader Model-</h1>
+<pre><code>stacked_ensemble_h2o &lt;- h2o.loadModel("AutoML 2/Models/StackedEnsemble_AllModels_1_AutoML_2_20230621_163345")
+stacked_ensemble_h2o &lt;- h2o.loadModel("AutoML 2/Models/StackedEnsemble_AllModels_1_AutoML_2_20230621_163345")
+
+
+#Make predictions
+predictions &lt;- h2o.predict(stacked_ensemble_h2o, newdata = as.h2o(test_tbl))
+typeof(predictions)
+predictions_tbl &lt;- predictions %&gt;% as_tibble()</code></pre>
+<p>Console output:</p>
+<pre><code>&gt; typeof(predictions)
+[1] "environment"</code></pre>
+</section>
+<section id="save-the-leader-model-" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> -07 Save the leader model-</h1>
+<pre><code>h2o.getModel("StackedEnsemble_AllModels_1_AutoML_2_20230621_163345") %&gt;% 
+  h2o.saveModel(path = "AutoML 2/Models/")</code></pre>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -178,6 +447,7 @@ Note
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
