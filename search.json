@@ -16,9 +16,58 @@
   {
     "objectID": "content/01_journal/03_data_wrangling.html",
     "href": "content/01_journal/03_data_wrangling.html",
-    "title": "Data Wrangling",
+    "title": "Automated Machine Learning with H20 (I)",
     "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
+    "text": "Insert libraries.\n# 01 Libraries\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(skimr)\nlibrary(GGally)\nLoad data and defintions\npath_data_definitions &lt;- \"Fundamentals of Machine Learning/Business Decisions with Machine Learning/data_definitions.xlsx\"\ndefinitions_raw_tbl   &lt;- read_excel(path_data_definitions, sheet = 1, col_names = FALSE)\n\nemployee_attrition_tbl &lt;- read_csv(\"AutoML 1/datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.csv\")\n\nDescriptive Features\nemployee_attrition_tbl %&gt;% select(Age, DistanceFromHome, Gender, MaritalStatus, NumCompaniesWorked, Over18)\nEmployment Features\nemployee_attrition_tbl %&gt;% select(Department, EmployeeCount, EmployeeNumber, JobInvolvement, JobLevel, JobRole, JobSatisfaction)\nCompensation Features\nemployee_attrition_tbl %&gt;% select(DailyRate, HourlyRate, MonthlyIncome, MonthlyRate, PercentSalaryHike, StockOptionLevel)\nSurvey Results\nemployee_attrition_tbl %&gt;% select(EnvironmentSatisfaction, JobSatisfaction, RelationshipSatisfaction, WorkLifeBalance)\nPerformance Data\nemployee_attrition_tbl %&gt;% select(JobInvolvement, PerformanceRating)\nWork-Life-Features\nemployee_attrition_tbl %&gt;% select(BusinessTravel, OverTime)\nTraining & Education\nemployee_attrition_tbl %&gt;% select(Education, EducationField, TrainingTimesLastYear)\nTime-based Features\nemployee_attrition_tbl %&gt;% select(TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, YearsWithCurrManager)"
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#compensation-features",
+    "href": "content/01_journal/03_data_wrangling.html#compensation-features",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.1 Compensation Features",
+    "text": "4.1 Compensation Features\n#   3. Compensation features: HourlyRate, MonthlyIncome, StockOptionLevel \nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"income\"), contains(\"rate\"), contains(\"salary\"), contains(\"stock\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nCompensation features\n\n\n\nQuestion 1: What can you deduce about the interaction between Monthly Income and Attrition?\nAnswer: Those that are leaving have a lower Monthly Income.\n\n\nQuestion 2: What can you deduce about the interaction between Percent Salary Hike and Attrition?\nAnswer: Those that are leaving have lower Percent Salary Hike.\n\n\nQuestion 3: What can you deduce about the interaction between Stock Option Level and Attrition?\nAnswer: Those that are staying have a higher stock option level."
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#survey-results",
+    "href": "content/01_journal/03_data_wrangling.html#survey-results",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.2 Survey Results",
+    "text": "4.2 Survey Results\n#   4. Survey Results: Satisfaction level, WorkLifeBalance \nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"satisfaction\"), contains(\"life\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nSurvey results\n\n\n\nQuestion 4: What can you deduce about the interaction between Environment Satisfaction and Attrition?\nAnswer: A higher proportion of those leaving have a low environment satisfaction level.\n\n\nQuestion 5: What can you deduce about the interaction between Work Life Balance and Attrition?\nAnswer: Those that are staying have a higher density of 2’s and 3’s."
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#performance-data",
+    "href": "content/01_journal/03_data_wrangling.html#performance-data",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.3 Performance Data",
+    "text": "4.3 Performance Data\n#   5. Performance Data: Job Involvment, Performance Rating\nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"performance\"), contains(\"involvement\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nPerformance Data\n\n\n\nQuestion 6: What Can you deduce about the interaction between Job Involvement and Attrition?\nAnswer: Those that are leaving have a lower density of 3’s and 4’s"
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#work-life-features",
+    "href": "content/01_journal/03_data_wrangling.html#work-life-features",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.4 Work-Life Features",
+    "text": "4.4 Work-Life Features\n#   6. Work-Life Features \nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"overtime\"), contains(\"travel\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nWork-Life Features\n\n\n\nQuestion 7: What can you deduce about the interaction between Over Time and Attrition?\nAnswer: The proportion of those staying that are working Over Time are high compared to those that are not staying."
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#training-and-education",
+    "href": "content/01_journal/03_data_wrangling.html#training-and-education",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.5 Training and Education",
+    "text": "4.5 Training and Education\n#   7. Training and Education \nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"training\"), contains(\"education\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nTraining and Education\n\n\n\nQuestion 8: What can you deduce about the interaction between Training Times Last Year and Attrition?\nAnswer: People that leave tend to have less annual training."
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#time-based-features",
+    "href": "content/01_journal/03_data_wrangling.html#time-based-features",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.6 Time Based Features",
+    "text": "4.6 Time Based Features\n#   8. Time-Based Features: Years at company, years in current role\nemployee_attrition_tbl %&gt;%\n  select(Attrition, contains(\"years\")) %&gt;%\n  plot_ggpairs(Attrition)\n\n\n\nTime based features\n\n\n\nQuestion 9: What can you deduce about the interaction between Years At Company and Attrition?\nAnswer: People that leave tend to have less working years at the company."
+  },
+  {
+    "objectID": "content/01_journal/03_data_wrangling.html#question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition",
+    "href": "content/01_journal/03_data_wrangling.html#question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition",
+    "title": "Automated Machine Learning with H20 (I)",
+    "section": "4.7 #Question 10: What can you deduce about the interaction between Years Since Last Promotion and Attrition?",
+    "text": "4.7 #Question 10: What can you deduce about the interaction between Years Since Last Promotion and Attrition?\nAnswer: Those that are leaving have fewer years since last promotion than those that are staying."
   },
   {
     "objectID": "content/01_journal/04_data_visualization.html",
