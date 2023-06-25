@@ -14,14 +14,18 @@ website:
         text: Home
       - text: "Journal"
         menu: 
-          - text: "01 Tidyverse"
+          - text: "01 Fundamentals of Machine Learning"
             file: content/01_journal/01_tidyverse.qmd
-          - text: "02 Data Acquisition"
+          - text: "02 Supervised ML - Regression (II)"
             file: content/01_journal/02_data_acquisition.qmd
-          - text: "03 Data Wrangling"
+          - text: "03 Automated Machine Learning with H2O (I)"
             file: content/01_journal/03_data_wrangling.qmd
-          - text: "04 Data Visualization"
+          - text: "04 Automated Machine Learning with H2O (II)"
             file: content/01_journal/04_data_visualization.qmd
+          - text: "05 Performance Measures"
+            file: content/01_journal/05_test.qmd
+          - text: "06 Explaining Black-Box Models with LIME"
+            file: content/01_journal/06_test.qmd
       - text: "Class notes"
         file: content/02_notes/05_class_notes.qmd
       - text: "Links"

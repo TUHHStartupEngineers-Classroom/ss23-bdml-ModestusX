@@ -1,8 +1,259 @@
 ---
-title: "Data Wrangling"
-author: "Joschka Schwarz"
+title: "Automated Machine Learning with H20 (I)"
+author: "Moritz Henkel"
 ---
+# Preparations
+Insert libraries.
+```
+# 01 Libraries
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(GGally)
+```
+Load data and defintions
+```
+path_data_definitions <- "Fundamentals of Machine Learning/Business Decisions with Machine Learning/data_definitions.xlsx"
+definitions_raw_tbl   <- read_excel(path_data_definitions, sheet = 1, col_names = FALSE)
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
+employee_attrition_tbl <- read_csv("AutoML 1/datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.csv")
+
+```
+Descriptive Features
+```
+employee_attrition_tbl %>% select(Age, DistanceFromHome, Gender, MaritalStatus, NumCompaniesWorked, Over18)
+```
+Employment Features
+```
+employee_attrition_tbl %>% select(Department, EmployeeCount, EmployeeNumber, JobInvolvement, JobLevel, JobRole, JobSatisfaction)
+```
+Compensation Features
+```
+employee_attrition_tbl %>% select(DailyRate, HourlyRate, MonthlyIncome, MonthlyRate, PercentSalaryHike, StockOptionLevel)
+```
+Survey Results
+```
+employee_attrition_tbl %>% select(EnvironmentSatisfaction, JobSatisfaction, RelationshipSatisfaction, WorkLifeBalance)
+```
+Performance Data
+```
+employee_attrition_tbl %>% select(JobInvolvement, PerformanceRating)
+```
+Work-Life-Features
+```
+employee_attrition_tbl %>% select(BusinessTravel, OverTime)
+```
+Training & Education
+```
+employee_attrition_tbl %>% select(Education, EducationField, TrainingTimesLastYear)
+```
+Time-based Features
+```
+employee_attrition_tbl %>% select(TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, YearsWithCurrManager)
+```
+# Step 1: Data Summarization
+```
+skim(employee_attrition_tbl)
+
+# Character Data Type
+employee_attrition_tbl %>%
+  select_if(is.character) %>%
+  glimpse()
+
+# Get "levels"
+employee_attrition_tbl %>%
+  select_if(is.character) %>%
+  map(unique)
+
+# Proportions    
+employee_attrition_tbl %>%
+  select_if(is.character) %>%
+  map(~ table(.) %>% prop.table())
+
+# Numeric Data
+employee_attrition_tbl %>%
+  select_if(is.numeric) %>%
+  map(~ unique(.) %>% length())
+
+employee_attrition_tbl %>%
+  select_if(is.numeric) %>%
+  map_df(~ unique(.) %>% length()) %>%
+  # Select all columns
+  pivot_longer(everything()) %>%
+  arrange(value) %>%
+  filter(value <= 10)
+```
+# Step 2: Data Visualization
+```
+employee_attrition_tbl %>%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %>%
+  ggpairs() 
+
+employee_attrition_tbl %>%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %>%
+  ggpairs(aes(color = Attrition), lower = "blank", legend = 1,
+          diag  = list(continuous = wrap("densityDiag", alpha = 0.5))) +
+  theme(legend.position = "bottom")
+
+# Create data tibble, to potentially debug the plot_ggpairs function (because it has a data argument)
+data <- employee_attrition_tbl %>%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome)
+
+plot_ggpairs <- function(data, color = NULL, density_alpha = 0.5) {
+  
+  color_expr <- enquo(color)
+  
+  if (rlang::quo_is_null(color_expr)) {
+    
+    g <- data %>%
+      ggpairs(lower = "blank") 
+    
+  } else {
+    
+    color_name <- quo_name(color_expr)
+    
+    g <- data %>%
+      ggpairs(mapping = aes_string(color = color_name), 
+              lower = "blank", legend = 1,
+              diag = list(continuous = wrap("densityDiag", 
+                                            alpha = density_alpha))) +
+      theme(legend.position = "bottom")
+  }
+  
+  return(g)
+  
+}
+
+employee_attrition_tbl %>%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %>%
+  plot_ggpairs(color = Attrition)
+```
+Step 3: Explore Features by category
+```
+#   1. Descriptive features: age, gender, marital status 
+employee_attrition_tbl %>%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %>%
+  plot_ggpairs(Attrition)
+
+#   2. Employment features: department, job role, job level
+employee_attrition_tbl %>%
+  select(Attrition, contains("employee"), contains("department"), contains("job")) %>%
+  plot_ggpairs(Attrition) 
+
+#   3. Compensation features: HourlyRate, MonthlyIncome, StockOptionLevel 
+employee_attrition_tbl %>%
+  select(Attrition, contains("income"), contains("rate"), contains("salary"), contains("stock")) %>%
+  plot_ggpairs(Attrition)
+
+#   4. Survey Results: Satisfaction level, WorkLifeBalance 
+employee_attrition_tbl %>%
+  select(Attrition, contains("satisfaction"), contains("life")) %>%
+  plot_ggpairs(Attrition)
+
+#   5. Performance Data: Job Involvment, Performance Rating
+employee_attrition_tbl %>%
+  select(Attrition, contains("performance"), contains("involvement")) %>%
+  plot_ggpairs(Attrition)
+
+#   6. Work-Life Features 
+employee_attrition_tbl %>%
+  select(Attrition, contains("overtime"), contains("travel")) %>%
+  plot_ggpairs(Attrition)
+
+#   7. Training and Education 
+employee_attrition_tbl %>%
+  select(Attrition, contains("training"), contains("education")) %>%
+  plot_ggpairs(Attrition)
+
+#   8. Time-Based Features: Years at company, years in current role
+employee_attrition_tbl %>%
+  select(Attrition, contains("years")) %>%
+  plot_ggpairs(Attrition)
+
+```
+# Challenge Questions
+## Compensation Features
+```
+#   3. Compensation features: HourlyRate, MonthlyIncome, StockOptionLevel 
+employee_attrition_tbl %>%
+  select(Attrition, contains("income"), contains("rate"), contains("salary"), contains("stock")) %>%
+  plot_ggpairs(Attrition)
+```
+![Compensation features](../../AutoML 1/compensation.png)
+
+### Question 1: What can you deduce about the interaction between Monthly Income and Attrition?
+*Answer:* Those that are leaving have a lower Monthly Income.
+
+### Question 2: What can you deduce about the interaction between Percent Salary Hike and Attrition?
+*Answer:* Those that are leaving have lower Percent Salary Hike.
+
+### Question 3: What can you deduce about the interaction between Stock Option Level and Attrition?
+*Answer:* Those that are staying have a higher stock option level.
+
+## Survey Results
+```
+#   4. Survey Results: Satisfaction level, WorkLifeBalance 
+employee_attrition_tbl %>%
+  select(Attrition, contains("satisfaction"), contains("life")) %>%
+  plot_ggpairs(Attrition)
+```
+![Survey results](../../AutoML 1/survey results.png)
+
+### Question 4: What can you deduce about the interaction between Environment Satisfaction and Attrition?
+*Answer:* A higher proportion of those leaving have a low environment satisfaction level.
+
+### Question 5: What can you deduce about the interaction between Work Life Balance and Attrition?
+*Answer:* Those that are staying have a higher density of 2's and 3's.
+
+## Performance Data
+```
+#   5. Performance Data: Job Involvment, Performance Rating
+employee_attrition_tbl %>%
+  select(Attrition, contains("performance"), contains("involvement")) %>%
+  plot_ggpairs(Attrition)
+```
+![Performance Data](../../AutoML 1/performance.png)
+
+### Question 6: What Can you deduce about the interaction between Job Involvement and Attrition?
+*Answer:* Those that are leaving have a lower density of 3's and 4's
+
+## Work-Life Features
+```
+#   6. Work-Life Features 
+employee_attrition_tbl %>%
+  select(Attrition, contains("overtime"), contains("travel")) %>%
+  plot_ggpairs(Attrition)
+```
+![Work-Life Features](../../AutoML 1/worklife.png)
+
+### Question 7: What can you deduce about the interaction between Over Time and Attrition?
+*Answer:* The proportion of those staying that are working Over Time are high compared to those that are not staying.
+
+## Training and Education
+```
+#   7. Training and Education 
+employee_attrition_tbl %>%
+  select(Attrition, contains("training"), contains("education")) %>%
+  plot_ggpairs(Attrition)
+```
+![Training and Education](../../AutoML 1/training.png)
+
+### Question 8: What can you deduce about the interaction between Training Times Last Year and Attrition?
+*Answer:* People that leave tend to have less annual training.
+
+## Time Based Features
+```
+#   8. Time-Based Features: Years at company, years in current role
+employee_attrition_tbl %>%
+  select(Attrition, contains("years")) %>%
+  plot_ggpairs(Attrition)
+```
+![Time based features](../../AutoML 1/timebased.png)
+
+### Question 9: What can you deduce about the interaction between Years At Company and Attrition?
+*Answer:* People that leave tend to have less working years at the company.
+
+## #Question 10: What can you deduce about the interaction between Years Since Last Promotion and Attrition?
+*Answer:* Those that are leaving have fewer years since last promotion than those that are staying.
+
+

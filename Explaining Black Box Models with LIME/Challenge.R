@@ -1,0 +1,240 @@
+# LIME FEATURE Challenge ----
+
+# 1. Setup ----
+
+# Load Libraries 
+
+library(h2o)
+library(recipes)
+library(readxl)
+library(tidyverse)
+library(tidyquant)
+library(lime)
+library(rsample)
+library(ggplot2)
+library(dplyr)
+
+# Load Data
+employee_attrition_tbl <- read_csv("AutoML 1/datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.csv")
+definitions_raw_tbl    <- read_excel("Fundamentals of Machine Learning/Business Decisions with Machine Learning/data_definitions.xlsx", sheet = 1, col_names = FALSE)
+
+# Processing Pipeline
+process_hr_data_readable <- function(data, definitions_tbl) {
+  
+  definitions_list <- definitions_tbl %>%
+    fill(...1, .direction = "down") %>%
+    filter(!is.na(...2)) %>%
+    separate(...2, into = c("key", "value"), sep = " '", remove = TRUE) %>%
+    rename(column_name = ...1) %>%
+    mutate(key = as.numeric(key)) %>%
+    mutate(value = value %>% str_replace(pattern = "'", replacement = "")) %>%
+    split(.$column_name) %>%
+    map(~ select(., -column_name)) %>%
+    map(~ mutate(., value = as_factor(value))) 
+  
+  for (i in seq_along(definitions_list)) {
+    list_name <- names(definitions_list)[i]
+    colnames(definitions_list[[i]]) <- c(list_name, paste0(list_name, "_value"))
+  }
+  
+  data_merged_tbl <- list(HR_Data = data) %>%
+    append(definitions_list, after = 1) %>%
+    reduce(left_join) %>%
+    select(-one_of(names(definitions_list))) %>%
+    set_names(str_replace_all(names(.), pattern = "_value", 
+                              replacement = "")) %>%
+    select(sort(names(.))) %>%
+    mutate_if(is.character, as.factor) %>%
+    mutate(
+      BusinessTravel = BusinessTravel %>% fct_relevel("Non-Travel", 
+                                                      "Travel_Rarely", 
+                                                      "Travel_Frequently"),
+      MaritalStatus  = MaritalStatus %>% fct_relevel("Single", 
+                                                     "Married", 
+                                                     "Divorced")
+    )
+  
+  return(data_merged_tbl)
+  
+}
+
+employee_attrition_readable_tbl <- process_hr_data_readable(employee_attrition_tbl, definitions_raw_tbl)
+
+# Split into test and train
+set.seed(seed = 1113)
+split_obj <- rsample::initial_split(employee_attrition_readable_tbl, prop = 0.85)
+
+# Assign training and test data
+train_readable_tbl <- training(split_obj)
+test_readable_tbl  <- testing(split_obj)
+
+# ML Preprocessing Recipe 
+recipe_obj <- recipe(Attrition ~ ., data = train_readable_tbl) %>%
+  step_zv(all_predictors()) %>%
+  step_mutate_at(c("JobLevel", "StockOptionLevel"), fn = as.factor) %>% 
+  prep()
+
+recipe_obj
+
+train_tbl <- bake(recipe_obj, new_data = train_readable_tbl)
+test_tbl  <- bake(recipe_obj, new_data = test_readable_tbl)
+
+# 2. Models ----
+
+# 2.1 Compute Model
+
+h2o.init()
+
+# Setting the seed is just for reproducability
+split_h2o <- h2o.splitFrame(as.h2o(train_tbl), ratios = c(0.85), seed = 1234)
+train_h2o <- split_h2o[[1]]
+valid_h2o <- split_h2o[[2]]
+test_h2o  <- as.h2o(test_tbl)
+
+# Set the target and predictors
+y <- "Attrition"
+x <- setdiff(names(train_h2o), y)
+
+automl_models_h2o <- h2o.automl(
+  x = x,
+  y = y,
+  training_frame    = train_h2o,
+  validation_frame  = valid_h2o,
+  leaderboard_frame = test_h2o,
+  max_runtime_secs  = 30,
+  nfolds            = 5 
+)
+
+automl_models_h2o@leaderboard
+# Save model
+h2o.getModel("DeepLearning_grid_3_AutoML_1_20230624_181020_model_1") %>% 
+  h2o.saveModel(path = "Explaining Black Box Models with LIME/")
+
+
+
+h2o.init()
+
+automl_leader <- h2o.loadModel("Explaining Black Box Models with LIME/DeepLearning_grid_3_AutoML_1_20230624_181020_model_1")
+automl_leader
+
+
+# 3. LIME ----
+
+# 3.1 Making Predictions ----
+
+predictions_tbl <- automl_leader %>% 
+  h2o.predict(newdata = as.h2o(test_tbl)) %>%
+  as.tibble() %>%
+  bind_cols(
+    test_tbl %>%
+      select(Attrition, EmployeeNumber)
+  )
+
+predictions_tbl
+
+test_tbl %>%
+  slice(1) %>%
+  glimpse()
+
+# 3.2 Single Explanation ----
+
+explainer <- train_tbl %>%
+  select(-Attrition) %>%
+  lime(
+    model           = automl_leader,
+    bin_continuous  = TRUE,
+    n_bins          = 4,
+    quantile_bins   = TRUE
+  )
+
+explainer
+
+explanation <- test_tbl %>%
+  slice(1) %>%
+  select(-Attrition) %>%
+  lime::explain(
+    
+    # Pass our explainer object
+    explainer = explainer,
+    # Because it is a binary classification model: 1
+    n_labels   = 1,
+    # number of features to be returned
+    n_features = 20,
+    # number of localized linear models
+    n_permutations = 5000,
+    # Let's start with 1
+    kernel_width   = 1
+  )
+
+explanation
+
+explanation %>%
+  as.tibble() %>%
+  select(feature:prediction) 
+
+g <- plot_features(explanation = explanation, ncol = 1)
+g
+
+# 3.3 Recreation of plot
+# Given by the task
+explanation %>% 
+  as.tibble()
+
+case_1 <- explanation %>%
+  filter(case == 1)
+
+case_1 %>%
+  ggplot(aes(x = feature_weight, y = feature, fill = feature_weight > 0)) +
+  geom_col() +
+  scale_fill_manual(values = c("gray", "steelblue"),
+                    labels = c("Contradicts", "Supports"),
+                    name = "Value") +
+  labs(title = "Case: 1",
+       subtitle = c("Label: Yes",
+                    "Probability: 0.64",
+                    "Explanation Fit: 0.33"),
+       x = "Feature",
+       y = "Weight") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0, margin = margin(0, 10, 0, 0)),
+        plot.subtitle = element_text(hjust = 0, margin = margin(0, 10, 0, 0)))
+
+# 3.4 Recreation of Plot 2
+explanation_tbl <- as.tibble(explanation)
+
+# Re-create the second plot
+explanation_2 <- test_tbl %>%
+  slice(1) %>%
+  select(-Attrition) %>% 
+  lime::explain(
+    
+    # Pass our explainer object
+    explainer = explainer,
+    # Because it is a binary classification model: 1
+    n_labels   = 1,
+    # number of features to be returned
+    n_features = 20,
+    # number of localized linear models
+    n_permutations = 5000,
+    # Let's start with 1
+    kernel_width   = 1
+  )
+
+
+explanation_2 <- explanation_2 %>%
+  as.tibble() %>%
+  mutate(row_id = row_number())
+
+explanation_2t <- explanation_2 %>%
+  mutate(label = ifelse(row_id == 20, "Yes", label))
+
+
+explanation_2t %>%
+  ggplot(aes(row_id,feature_desc, fill = feature_weight)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  facet_wrap(vars(label)) +
+  labs(title = "Feature Importance",
+       x = "Case",
+       y = "Feature") +
+  theme_bw()

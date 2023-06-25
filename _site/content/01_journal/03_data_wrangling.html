@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.269">
+<meta name="generator" content="quarto-1.3.353">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Joschka Schwarz">
+<meta name="author" content="Moritz Henkel">
 
-<title>MyLabJournal - Data Wrangling</title>
+<title>MyLabJournal - Automated Machine Learning with H20 (I)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -18,7 +18,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -43,6 +43,9 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -77,51 +80,59 @@ ul.task-list li input[type="checkbox"] {
     <span class="navbar-title">MyLabJournal</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html">
+    <a class="nav-link" href="../../index.html" rel="" target="">
  <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-journal" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-journal" role="button" data-bs-toggle="dropdown" aria-expanded="false" rel="" target="">
  <span class="menu-text">Journal</span>
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-journal">    
         <li>
-    <a class="dropdown-item" href="../../content/01_journal/01_tidyverse.html">
- <span class="dropdown-text">01 Tidyverse</span></a>
+    <a class="dropdown-item" href="../../content/01_journal/01_tidyverse.html" rel="" target="">
+ <span class="dropdown-text">01 Fundamentals of Machine Learning</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../content/01_journal/02_data_acquisition.html">
- <span class="dropdown-text">02 Data Acquisition</span></a>
+    <a class="dropdown-item" href="../../content/01_journal/02_data_acquisition.html" rel="" target="">
+ <span class="dropdown-text">02 Supervised ML - Regression (II)</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../content/01_journal/03_data_wrangling.html">
- <span class="dropdown-text">03 Data Wrangling</span></a>
+    <a class="dropdown-item" href="../../content/01_journal/03_data_wrangling.html" rel="" target="">
+ <span class="dropdown-text">03 Automated Machine Learning with H2O (I)</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../content/01_journal/04_data_visualization.html">
- <span class="dropdown-text">04 Data Visualization</span></a>
+    <a class="dropdown-item" href="../../content/01_journal/04_data_visualization.html" rel="" target="">
+ <span class="dropdown-text">04 Automated Machine Learning with H2O (II)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/05_test.html" rel="" target="">
+ <span class="dropdown-text">05 Performance Measures</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../content/01_journal/06_test.html" rel="" target="">
+ <span class="dropdown-text">06 Explaining Black-Box Models with LIME</span></a>
   </li>  
     </ul>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="../../content/02_notes/05_class_notes.html">
+    <a class="nav-link" href="../../content/02_notes/05_class_notes.html" rel="" target="">
  <span class="menu-text">Class notes</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../content/03_other/06_links.html">
+    <a class="nav-link" href="../../content/03_other/06_links.html" rel="" target="">
  <span class="menu-text">Links</span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools ms-auto">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -131,14 +142,32 @@ ul.task-list li input[type="checkbox"] {
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul class="collapse">
+  <li><a href="#preparations" id="toc-preparations" class="nav-link active" data-scroll-target="#preparations"><span class="header-section-number">1</span> Preparations</a></li>
+  <li><a href="#step-1-data-summarization" id="toc-step-1-data-summarization" class="nav-link" data-scroll-target="#step-1-data-summarization"><span class="header-section-number">2</span> Step 1: Data Summarization</a></li>
+  <li><a href="#step-2-data-visualization" id="toc-step-2-data-visualization" class="nav-link" data-scroll-target="#step-2-data-visualization"><span class="header-section-number">3</span> Step 2: Data Visualization</a></li>
+  <li><a href="#challenge-questions" id="toc-challenge-questions" class="nav-link" data-scroll-target="#challenge-questions"><span class="header-section-number">4</span> Challenge Questions</a>
+  <ul class="collapse">
+  <li><a href="#compensation-features" id="toc-compensation-features" class="nav-link" data-scroll-target="#compensation-features"><span class="header-section-number">4.1</span> Compensation Features</a></li>
+  <li><a href="#survey-results" id="toc-survey-results" class="nav-link" data-scroll-target="#survey-results"><span class="header-section-number">4.2</span> Survey Results</a></li>
+  <li><a href="#performance-data" id="toc-performance-data" class="nav-link" data-scroll-target="#performance-data"><span class="header-section-number">4.3</span> Performance Data</a></li>
+  <li><a href="#work-life-features" id="toc-work-life-features" class="nav-link" data-scroll-target="#work-life-features"><span class="header-section-number">4.4</span> Work-Life Features</a></li>
+  <li><a href="#training-and-education" id="toc-training-and-education" class="nav-link" data-scroll-target="#training-and-education"><span class="header-section-number">4.5</span> Training and Education</a></li>
+  <li><a href="#time-based-features" id="toc-time-based-features" class="nav-link" data-scroll-target="#time-based-features"><span class="header-section-number">4.6</span> Time Based Features</a></li>
+  <li><a href="#question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition" id="toc-question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition" class="nav-link" data-scroll-target="#question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition"><span class="header-section-number">4.7</span> #Question 10: What can you deduce about the interaction between Years Since Last Promotion and Attrition?</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data Wrangling</h1>
+<h1 class="title">Automated Machine Learning with H20 (I)</h1>
 </div>
 
 
@@ -148,7 +177,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Joschka Schwarz </p>
+             <p>Moritz Henkel </p>
           </div>
   </div>
     
@@ -159,21 +188,278 @@ ul.task-list li input[type="checkbox"] {
 
 </header>
 
-<div class="callout-note callout callout-style-default callout-captioned">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="preparations" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Preparations</h1>
+<p>Insert libraries.</p>
+<pre><code># 01 Libraries
+library(tidyverse)
+library(readxl)
+library(skimr)
+library(GGally)</code></pre>
+<p>Load data and defintions</p>
+<pre><code>path_data_definitions &lt;- "Fundamentals of Machine Learning/Business Decisions with Machine Learning/data_definitions.xlsx"
+definitions_raw_tbl   &lt;- read_excel(path_data_definitions, sheet = 1, col_names = FALSE)
+
+employee_attrition_tbl &lt;- read_csv("AutoML 1/datasets-1067-1925-WA_Fn-UseC_-HR-Employee-Attrition.csv")
+</code></pre>
+<p>Descriptive Features</p>
+<pre><code>employee_attrition_tbl %&gt;% select(Age, DistanceFromHome, Gender, MaritalStatus, NumCompaniesWorked, Over18)</code></pre>
+<p>Employment Features</p>
+<pre><code>employee_attrition_tbl %&gt;% select(Department, EmployeeCount, EmployeeNumber, JobInvolvement, JobLevel, JobRole, JobSatisfaction)</code></pre>
+<p>Compensation Features</p>
+<pre><code>employee_attrition_tbl %&gt;% select(DailyRate, HourlyRate, MonthlyIncome, MonthlyRate, PercentSalaryHike, StockOptionLevel)</code></pre>
+<p>Survey Results</p>
+<pre><code>employee_attrition_tbl %&gt;% select(EnvironmentSatisfaction, JobSatisfaction, RelationshipSatisfaction, WorkLifeBalance)</code></pre>
+<p>Performance Data</p>
+<pre><code>employee_attrition_tbl %&gt;% select(JobInvolvement, PerformanceRating)</code></pre>
+<p>Work-Life-Features</p>
+<pre><code>employee_attrition_tbl %&gt;% select(BusinessTravel, OverTime)</code></pre>
+<p>Training &amp; Education</p>
+<pre><code>employee_attrition_tbl %&gt;% select(Education, EducationField, TrainingTimesLastYear)</code></pre>
+<p>Time-based Features</p>
+<pre><code>employee_attrition_tbl %&gt;% select(TotalWorkingYears, YearsAtCompany, YearsInCurrentRole, YearsSinceLastPromotion, YearsWithCurrManager)</code></pre>
+</section>
+<section id="step-1-data-summarization" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Step 1: Data Summarization</h1>
+<pre><code>skim(employee_attrition_tbl)
+
+# Character Data Type
+employee_attrition_tbl %&gt;%
+  select_if(is.character) %&gt;%
+  glimpse()
+
+# Get "levels"
+employee_attrition_tbl %&gt;%
+  select_if(is.character) %&gt;%
+  map(unique)
+
+# Proportions    
+employee_attrition_tbl %&gt;%
+  select_if(is.character) %&gt;%
+  map(~ table(.) %&gt;% prop.table())
+
+# Numeric Data
+employee_attrition_tbl %&gt;%
+  select_if(is.numeric) %&gt;%
+  map(~ unique(.) %&gt;% length())
+
+employee_attrition_tbl %&gt;%
+  select_if(is.numeric) %&gt;%
+  map_df(~ unique(.) %&gt;% length()) %&gt;%
+  # Select all columns
+  pivot_longer(everything()) %&gt;%
+  arrange(value) %&gt;%
+  filter(value &lt;= 10)</code></pre>
+</section>
+<section id="step-2-data-visualization" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Step 2: Data Visualization</h1>
+<pre><code>employee_attrition_tbl %&gt;%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %&gt;%
+  ggpairs() 
+
+employee_attrition_tbl %&gt;%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %&gt;%
+  ggpairs(aes(color = Attrition), lower = "blank", legend = 1,
+          diag  = list(continuous = wrap("densityDiag", alpha = 0.5))) +
+  theme(legend.position = "bottom")
+
+# Create data tibble, to potentially debug the plot_ggpairs function (because it has a data argument)
+data &lt;- employee_attrition_tbl %&gt;%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome)
+
+plot_ggpairs &lt;- function(data, color = NULL, density_alpha = 0.5) {
+  
+  color_expr &lt;- enquo(color)
+  
+  if (rlang::quo_is_null(color_expr)) {
+    
+    g &lt;- data %&gt;%
+      ggpairs(lower = "blank") 
+    
+  } else {
+    
+    color_name &lt;- quo_name(color_expr)
+    
+    g &lt;- data %&gt;%
+      ggpairs(mapping = aes_string(color = color_name), 
+              lower = "blank", legend = 1,
+              diag = list(continuous = wrap("densityDiag", 
+                                            alpha = density_alpha))) +
+      theme(legend.position = "bottom")
+  }
+  
+  return(g)
+  
+}
+
+employee_attrition_tbl %&gt;%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %&gt;%
+  plot_ggpairs(color = Attrition)</code></pre>
+<p>Step 3: Explore Features by category</p>
+<pre><code>#   1. Descriptive features: age, gender, marital status 
+employee_attrition_tbl %&gt;%
+  select(Attrition, Age, Gender, MaritalStatus, NumCompaniesWorked, Over18, DistanceFromHome) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   2. Employment features: department, job role, job level
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("employee"), contains("department"), contains("job")) %&gt;%
+  plot_ggpairs(Attrition) 
+
+#   3. Compensation features: HourlyRate, MonthlyIncome, StockOptionLevel 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("income"), contains("rate"), contains("salary"), contains("stock")) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   4. Survey Results: Satisfaction level, WorkLifeBalance 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("satisfaction"), contains("life")) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   5. Performance Data: Job Involvment, Performance Rating
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("performance"), contains("involvement")) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   6. Work-Life Features 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("overtime"), contains("travel")) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   7. Training and Education 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("training"), contains("education")) %&gt;%
+  plot_ggpairs(Attrition)
+
+#   8. Time-Based Features: Years at company, years in current role
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("years")) %&gt;%
+  plot_ggpairs(Attrition)
+</code></pre>
+</section>
+<section id="challenge-questions" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Challenge Questions</h1>
+<section id="compensation-features" class="level2" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="compensation-features"><span class="header-section-number">4.1</span> Compensation Features</h2>
+<pre><code>#   3. Compensation features: HourlyRate, MonthlyIncome, StockOptionLevel 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("income"), contains("rate"), contains("salary"), contains("stock")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/compensation.png" class="lightbox" title="Compensation features" data-gallery="quarto-lightbox-gallery-1"><img src="../../AutoML 1/compensation.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Compensation features</figcaption>
+</figure>
 </div>
-<div class="callout-caption-container flex-fill">
-Note
+<section id="question-1-what-can-you-deduce-about-the-interaction-between-monthly-income-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-1-what-can-you-deduce-about-the-interaction-between-monthly-income-and-attrition">Question 1: What can you deduce about the interaction between Monthly Income and Attrition?</h3>
+<p><em>Answer:</em> Those that are leaving have a lower Monthly Income.</p>
+</section>
+<section id="question-2-what-can-you-deduce-about-the-interaction-between-percent-salary-hike-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-2-what-can-you-deduce-about-the-interaction-between-percent-salary-hike-and-attrition">Question 2: What can you deduce about the interaction between Percent Salary Hike and Attrition?</h3>
+<p><em>Answer:</em> Those that are leaving have lower Percent Salary Hike.</p>
+</section>
+<section id="question-3-what-can-you-deduce-about-the-interaction-between-stock-option-level-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-3-what-can-you-deduce-about-the-interaction-between-stock-option-level-and-attrition">Question 3: What can you deduce about the interaction between Stock Option Level and Attrition?</h3>
+<p><em>Answer:</em> Those that are staying have a higher stock option level.</p>
+</section>
+</section>
+<section id="survey-results" class="level2" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="survey-results"><span class="header-section-number">4.2</span> Survey Results</h2>
+<pre><code>#   4. Survey Results: Satisfaction level, WorkLifeBalance 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("satisfaction"), contains("life")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/survey results.png" class="lightbox" title="Survey results" data-gallery="quarto-lightbox-gallery-2"><img src="../../AutoML 1/survey results.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Survey results</figcaption>
+</figure>
 </div>
+<section id="question-4-what-can-you-deduce-about-the-interaction-between-environment-satisfaction-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-4-what-can-you-deduce-about-the-interaction-between-environment-satisfaction-and-attrition">Question 4: What can you deduce about the interaction between Environment Satisfaction and Attrition?</h3>
+<p><em>Answer:</em> A higher proportion of those leaving have a low environment satisfaction level.</p>
+</section>
+<section id="question-5-what-can-you-deduce-about-the-interaction-between-work-life-balance-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-5-what-can-you-deduce-about-the-interaction-between-work-life-balance-and-attrition">Question 5: What can you deduce about the interaction between Work Life Balance and Attrition?</h3>
+<p><em>Answer:</em> Those that are staying have a higher density of 2’s and 3’s.</p>
+</section>
+</section>
+<section id="performance-data" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="performance-data"><span class="header-section-number">4.3</span> Performance Data</h2>
+<pre><code>#   5. Performance Data: Job Involvment, Performance Rating
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("performance"), contains("involvement")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/performance.png" class="lightbox" title="Performance Data" data-gallery="quarto-lightbox-gallery-3"><img src="../../AutoML 1/performance.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Performance Data</figcaption>
+</figure>
 </div>
-<div class="callout-body-container callout-body">
-<p>You can delete everything in here and start fresh.</p>
+<section id="question-6-what-can-you-deduce-about-the-interaction-between-job-involvement-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-6-what-can-you-deduce-about-the-interaction-between-job-involvement-and-attrition">Question 6: What Can you deduce about the interaction between Job Involvement and Attrition?</h3>
+<p><em>Answer:</em> Those that are leaving have a lower density of 3’s and 4’s</p>
+</section>
+</section>
+<section id="work-life-features" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="work-life-features"><span class="header-section-number">4.4</span> Work-Life Features</h2>
+<pre><code>#   6. Work-Life Features 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("overtime"), contains("travel")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/worklife.png" class="lightbox" title="Work-Life Features" data-gallery="quarto-lightbox-gallery-4"><img src="../../AutoML 1/worklife.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Work-Life Features</figcaption>
+</figure>
 </div>
+<section id="question-7-what-can-you-deduce-about-the-interaction-between-over-time-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-7-what-can-you-deduce-about-the-interaction-between-over-time-and-attrition">Question 7: What can you deduce about the interaction between Over Time and Attrition?</h3>
+<p><em>Answer:</em> The proportion of those staying that are working Over Time are high compared to those that are not staying.</p>
+</section>
+</section>
+<section id="training-and-education" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="training-and-education"><span class="header-section-number">4.5</span> Training and Education</h2>
+<pre><code>#   7. Training and Education 
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("training"), contains("education")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/training.png" class="lightbox" title="Training and Education" data-gallery="quarto-lightbox-gallery-5"><img src="../../AutoML 1/training.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Training and Education</figcaption>
+</figure>
 </div>
+<section id="question-8-what-can-you-deduce-about-the-interaction-between-training-times-last-year-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-8-what-can-you-deduce-about-the-interaction-between-training-times-last-year-and-attrition">Question 8: What can you deduce about the interaction between Training Times Last Year and Attrition?</h3>
+<p><em>Answer:</em> People that leave tend to have less annual training.</p>
+</section>
+</section>
+<section id="time-based-features" class="level2" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="time-based-features"><span class="header-section-number">4.6</span> Time Based Features</h2>
+<pre><code>#   8. Time-Based Features: Years at company, years in current role
+employee_attrition_tbl %&gt;%
+  select(Attrition, contains("years")) %&gt;%
+  plot_ggpairs(Attrition)</code></pre>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../../AutoML 1/timebased.png" class="lightbox" title="Time based features" data-gallery="quarto-lightbox-gallery-6"><img src="../../AutoML 1/timebased.png" class="img-fluid figure-img"></a></p>
+<figcaption class="figure-caption">Time based features</figcaption>
+</figure>
+</div>
+<section id="question-9-what-can-you-deduce-about-the-interaction-between-years-at-company-and-attrition" class="level3">
+<h3 class="anchored" data-anchor-id="question-9-what-can-you-deduce-about-the-interaction-between-years-at-company-and-attrition">Question 9: What can you deduce about the interaction between Years At Company and Attrition?</h3>
+<p><em>Answer:</em> People that leave tend to have less working years at the company.</p>
+</section>
+</section>
+<section id="question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="question-10-what-can-you-deduce-about-the-interaction-between-years-since-last-promotion-and-attrition"><span class="header-section-number">4.7</span> #Question 10: What can you deduce about the interaction between Years Since Last Promotion and Attrition?</h2>
+<p><em>Answer:</em> Those that are leaving have fewer years since last promotion than those that are staying.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -318,9 +604,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -385,6 +685,92 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -425,6 +811,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","loop":true,"selector":".lightbox","descPosition":"bottom"});</script>
 
 
 

@@ -1,98 +1,137 @@
 ---
-title: "Tidyverse"
-author: "Joschka Schwarz"
+title: "Fundamentals of Machine Learning"
+author: "Moritz Henkel"
 ---
 
-::: callout-note
-You can delete everything in here and start fresh.
-:::
-
-This is a `.qmd` file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a \# in front of your text, it will create a top level-header.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-# Text Formatting
-
-*italics* and **bold**
-
-superscript^2^ / subscript~2~
-
-~~strikethrough~~
-
-`verbatim code`
-
-> Blockquote
-
-# Headings
-
-## Header 2
-### Header 3
-#### Header 4
-##### Header 5
-###### Header 6
-
-# Links & Images
-
-<https://quarto.org>
-
-[Quarto](https://quarto.org)
-
-![Caption](../../assets/img/elephant.png)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org)
-
-[![Caption](../../assets/img/elephant.png)](https://quarto.org "An elephant")
-
-
-# Lists
-
-* unordered list
-    + sub-item 1
-    + sub-item 2
-        - sub-sub-item 1
-        
-*   item 2
-
-    Continued (indent 4 spaces)
-    
-    
-1. ordered list
-2. item 2
-    i) sub-item 1
-         A.  sub-sub-item 1
-         
-(@)  A list whose numbering
-
-continues after
-
-(@)  an interruption
-
-# Tables
-
-| Right | Left | Default | Center |
-|------:|:-----|---------|:------:|
-|   12  |  12  |    12   |    12  |
-|  123  |  123 |   123   |   123  |
-|    1  |    1 |     1   |     1  |
-
-# Source Code
-
-Use ``` to delimit blocks of source code:
+# Preparations
+Insert libraries.
 
 ```
-code
+# 01 Libraries
+library(tidyverse)
+library(tidyquant)
+library(broom)
+library(umap)
+library(plotly)
+library(ggrepel)
 ```
 
-Add a language to syntax highlight code blocks:
+Load data.
 
-```{r}
-1 + 1
+```
+# 02 Load DATA
+sp_500_prices_tbl <- read_rds("Fundamentals of Machine Learning/Business Decisions with Machine Learning/sp_500_prices_tbl.rds")
+sp_500_index_tbl <- read_rds("Fundamentals of Machine Learning/Business Decisions with Machine Learning/sp_500_index_tbl.rds")                         
+
 ```
 
-```{r}
-cars
+# Question 1: Which stock prices behave similarly?
+Step 1: Convert stock prices to a standardized format
 ```
+sp_500_daily_returns_tbl <- sp_500_prices_tbl %>%
+  select(symbol,date,adjusted) %>%
+  filter(date > '2018-01-01') %>%
+  group_by(symbol) %>%
+  mutate(price_lagged = lag(adjusted, n=1)) %>%
+  ungroup() %>%
+  na.omit() %>%
+  mutate(pct_return = (adjusted-price_lagged)/price_lagged) %>%
+  select(symbol,date,pct_return)
+```
+Step 2: Convert to User-Item Format.
+```
+stock_date_matrix_tbl <- sp_500_daily_returns_tbl %>%
+  pivot_wider(names_from = date, values_from = pct_return, values_fill = 0)
+```
+Step 3: Perform K-Means Clustering.
+```
+kmeans_obj <- stock_date_matrix_tbl %>%
+  select(-symbol) %>%
+  kmeans(centers = 4, nstart = 20)
+```
+Step 4: Find the optimal value of k
+```
+kmeans_mapper <- function(center = 3) {
+  stock_date_matrix_tbl %>%
+    select(-symbol) %>%
+    kmeans(centers = center, nstart = 20)
+}
+k_means_mapped_tbl <- tibble(centers = 1:30) %>%
+  mutate(k_means = centers %>% map(kmeans_mapper)) %>%
+  mutate(glance  = k_means %>% map(glance))
+```
+Step 5: The final data can be used and piped into a scree plot.
+```
+k_means_mapped_tbl %>%
+  unnest(glance) %>%
+  select(centers, tot.withinss) %>%
 
-```{r}
-plot(cars)
+#Visualization of Scree Plot
+ggplot(aes(centers, tot.withinss)) +
+  geom_point(color = "#2DC6D6", size = 4) +
+  geom_line(color = "#2DC6D6", size = 1) +
+  # Add labels (which are repelled a little)
+  ggrepel::geom_label_repel(aes(label = centers), color = "#2DC6D6") + 
+  
+  # Formatting
+  labs(title = "Skree Plot",
+       subtitle = "Measures the distance each of the stocks are from the closes K-Means center",
+       caption = "Conclusion: Based on the Scree Plot, we select 5 clusters to segment the stocks.")
 ```
+Depicted below is the according plot.
+![Skree Plot](../../Fundamentals of Machine Learning/skree.png)
+Based on the Scree Plot, we select 10 cluster to segment the stocks.
+
+Step 6: Apply UMAP
+```
+umap_results <- stock_date_matrix_tbl %>%
+  select(-symbol) %>%
+  umap()
+```
+Convert UMAP results to tibble with symbols.
+```
+umap_results_tbl <- umap_results$layout %>%
+  as_tibble() %>%
+  bind_cols(stock_date_matrix_tbl %>% select(symbol))
+
+```
+Visualize UMAP results.
+```
+umap_results_tbl %>%
+ggplot(aes(V1,V2)) +
+  geom_point(color = "#2DC6D6", size = 2, alpha = 0.5) + 
+  
+  # Formatting
+  theme_tq() +
+  labs(title = "UMAP Projection")
+```
+The according plot can be seen below.
+![Skree Plot](../../Fundamentals of Machine Learning/Umap Projection.png)
+Step 7: Combine K-Means and UMAP. Get the k_means_obj from the 10th center.Store as k_means_obj.
+```
+k_means_obj <- k_means_mapped_tbl %>%
+  pull(k_means) %>%
+  pluck(10)
+```
+Combine k_means_obj with the umap_results_tbl
+```
+umap_kmeans_results_tbl <- k_means_obj %>%
+  augment(stock_date_matrix_tbl) %>%
+  # Select the data we need
+  select(symbol, .cluster) %>%
+  left_join(umap_results_tbl, by = "symbol") %>%
+  left_join(sp_500_index_tbl %>% select(symbol, company, sector), by = "symbol") %>%
+  mutate(label_text = str_glue("Ticker: {symbol}"))
+```
+Step 8: Visualize the combined K-Means and UMAP results
+```
+umap_kmeans_results_tbl %>%
+  #Visualize the K-Means and UMAp results
+  ggplot(aes(V1,V2,color = .cluster))+
+  geom_point(alpha = 0.5)+
+  geom_label_repel(aes(label = label_text), size = 2, fill = "#282A36") +
+  scale_color_manual(values=c("black", "violet", "green","red","orange","purple","pink","blue","brown","yellow"))
+
+```
+The resulting plot is depicted below.
+![Skree Plot](../../Fundamentals of Machine Learning/Rplot Cluster.png)
